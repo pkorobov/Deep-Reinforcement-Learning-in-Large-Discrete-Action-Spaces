@@ -3,7 +3,6 @@ import itertools
 import pyflann
 
 import matplotlib.pyplot as plt
-from util.data_process import plot_3d_points
 
 
 """
@@ -13,9 +12,7 @@ from util.data_process import plot_3d_points
 
 """
 
-
 class Space:
-
     def __init__(self, low, high, points):
 
         self._low = np.array(low)

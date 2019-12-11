@@ -1,8 +1,6 @@
 import random
 import numpy as np
 
-from util import *
-
 import gym
 from gym.spaces import Box, Discrete
 
@@ -89,16 +87,12 @@ class DDPGAgent(Agent):
         action_bounds = [action_max, action_min]
         self.grad_inv = grad_inverter(action_bounds)
 
-    def add_data_fetch(self, df):
-        self.data_fetch = df
-
     def get_name(self):
         return 'DDPG' + super().get_name()
 
     def act(self, state):
         state = self._np_shaping(state, True)
         result = self.actor_net.evaluate_actor(state).astype(float)
-        self.data_fetch.set_actors_action(result[0].tolist())
         return result
 
     def observe(self, episode):
