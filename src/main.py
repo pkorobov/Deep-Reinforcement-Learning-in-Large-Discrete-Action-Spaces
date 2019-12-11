@@ -9,18 +9,20 @@ import util.data
 from util.timer import Timer
 
 
-def run(episodes=2500,
+def run(episodes=10000,
         render=False,
-        experiment='InvertedPendulum-v1',
-        max_actions=1000,
-        knn=0.1):
+        experiment='InvertedPendulum-v2',
+        max_actions=10000,
+        knn=0.2):
 
     env = gym.make(experiment)
 
+    print('------------------------------')
     print(env.observation_space)
     print(env.action_space)
+    print('------------------------------')
 
-    steps = env.spec.timestep_limit
+    steps = env.spec.max_episode_steps
 
     # agent = DDPGAgent(env)
     agent = WolpertingerAgent(env, max_actions=max_actions, k_ratio=knn)
@@ -38,12 +40,13 @@ def run(episodes=2500,
     full_epoch_timer = Timer()
     reward_sum = 0
 
+
     for ep in range(episodes):
 
         timer.reset()
         observation = env.reset()
-
         total_reward = 0
+
         print('Episode ', ep, '/', episodes - 1, 'started...', end='')
         for t in range(steps):
 
@@ -93,4 +96,4 @@ def run(episodes=2500,
 
 
 if __name__ == '__main__':
-    run()
+    run(render=True)
