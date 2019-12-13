@@ -1,5 +1,4 @@
 import numpy as np
-from ddpg import agent
 import knn_search
 import gym
 import copy
@@ -67,7 +66,7 @@ class WolpertingerAgent(DDPG):
         max_index = np.argmax(q_values)  # find the index of the pair with the maximum value
         action, q_value = actions[max_index], q_values[max_index]
         action = (action + 1) / 2
-        action = np.where(action)
+        action = np.where(action)[0]
 
         return action, q_value
 
