@@ -6,4 +6,4 @@ __pycache__
 # .pyc files
 *.pyc
 
-.DS_Store
+src/.DS_Store
