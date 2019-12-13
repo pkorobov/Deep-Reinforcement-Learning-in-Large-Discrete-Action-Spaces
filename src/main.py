@@ -1,52 +1,36 @@
 import gym
+
+from stable_baselines import DDPG
+from wolp_agent import WolpertingerAgent
+from stable_baselines.ddpg.policies import MlpPolicy
+from stable_baselines.common.vec_env import DummyVecEnv
+from stable_baselines.common.noise import OrnsteinUhlenbeckActionNoise
+
 import numpy as np
-from wolp_agent import *
+import tensorflow as tf
 
+env = gym.make('CartPole-v0')
+# env = gym.make('CartPole-v1')
 
-def run(episodes=10000,
-        render=False,
-        experiment='CartPole-v0',
-        max_actions=10000,
-        knn=1.0):
+#env = DummyVecEnv([env])
+n_actions = env.action_space.n
+param_noise = None
+action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
-    env = gym.make(experiment)
-    steps = env.spec.max_episode_steps
-    agent = WolpertingerAgent(env, max_actions=env.action_space.n, k_ratio=knn)
-    reward_sum = 0
+def callback(_locals, _globals):
+    _locals['self'].env.render()
 
-    for ep in range(episodes):
+model = WolpertingerAgent(MlpPolicy, env, verbose=1, param_noise=param_noise, action_noise=action_noise)
+model.learn(total_timesteps=100000, callback=callback)
 
-        observation = env.reset()
+for episode in range(100):
+    obs = env.reset()
+    for step in range(1000):
         total_reward = 0
-
-        print('Episode ', ep, '/', episodes - 1, 'started...', end='')
-        for t in range(steps):
-            if render:
-                env.render()
-
-            action = agent.act(observation)
-            action_ = np.where(action)[0]
-
-            prev_observation = observation
-            observation, reward, done, info = env.step(action_[0] if len(action_) == 1 else action_)
-
-            episode = {'obs': prev_observation,
-                       'action': action,
-                       'reward': reward,
-                       'obs2': observation,
-                       'done': done,
-                       't': t}
-
-            agent.observe(episode)
-            total_reward += reward
-
-            if done or (t == steps - 1):
-                t += 1
-                reward_sum += total_reward
-                print('Reward:{} Steps:{} Cur avg={}'.format(total_reward, t, round(reward_sum / (ep + 1))))
-                break
-    print('Run {} episodes and got {} average reward'.format(episodes, reward_sum / episodes))
-
-
-if __name__ == '__main__':
-    run(render=True)
+        env.render()
+        action, states = model.predict(obs)
+        obs, reward, done, info = env.step(action)
+        total_reward += reward
+        if done:
+            break
+    print(total_reward)
