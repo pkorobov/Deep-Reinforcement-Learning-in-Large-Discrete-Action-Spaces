@@ -1,15 +1,22 @@
-import numpy as np
 import knn_search
-import gym
 import copy
-from collections import deque
-import time
-
-from stable_baselines.common.vec_env import VecEnv
-from mpi4py import MPI
-from stable_baselines.common import SetVerbosity, TensorboardWriter
 from stable_baselines.ddpg.policies import MlpPolicy
 from stable_baselines import DDPG
+
+import os
+import time
+from collections import deque
+import pickle
+
+import gym
+import numpy as np
+from mpi4py import MPI
+
+from stable_baselines import logger
+from stable_baselines.common import SetVerbosity, TensorboardWriter
+from stable_baselines.common.vec_env import VecEnv
+from stable_baselines.a2c.utils import total_episode_reward_logger
+
 
 class WolpertingerAgent(DDPG):
     def __init__(self, policy, env, k_ratio=1.0, embeddings=None, gamma=0.99, memory_policy=None, eval_env=None, nb_train_steps=50,
