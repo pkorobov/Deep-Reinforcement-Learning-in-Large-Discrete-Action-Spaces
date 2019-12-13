@@ -2,43 +2,34 @@ import numpy as np
 import pyflann
 from gym.spaces import Box
 from ddpg import agent
-import action_space
-
+import knn_search
+import gym
+import copy
 
 class WolpertingerAgent(agent.DDPGAgent):
 
-    def __init__(self, env, max_actions=1e6, k_ratio=0.1):
-        super().__init__(env)
-        if self.continious_action_space:
-            self.action_space = action_space.Space(self.low, self.high, max_actions)
-            max_actions = self.action_space.get_number_of_actions()
-        else:
-            max_actions = int(env.action_space.nvec[0])
-            # action_space - MultiDiscrete, nvec - tuple с числом действий в каждом измерении
-            # видимо, Multi появляется из-за слейтов, сейчас слейт один, так что берем первый инт
-            self.action_space = action_space.OneHotEncodingSpace(max_actions)
+    def __init__(self, env, max_actions=1e6, k_ratio=0.1, embeddings=None):
 
-        self.k_nearest_neighbors = max(1, int(max_actions * k_ratio))
+        if isinstance(env.action_space, gym.spaces.Discrete):
+            n = env.action_space.n
+            env_ = copy.deepcopy(env)
+            env_.action_space = gym.spaces.Box(np.array([0.] * n), np.array([1.] * n))
 
-    def get_name(self):
-        return 'Wolp3_{}k{}_{}'.format(self.action_space.get_number_of_actions(),
-                                       self.k_nearest_neighbors)
+        super().__init__(env_)
+        self.knn_search = knn_search.KNNSearch(env_.action_space, embeddings)
+        self.k = max(1, int(max_actions * k_ratio))
 
     def get_action_space(self):
-        return self.action_space
+        return self.knn_search
 
     def act(self, state):
-        # taking a continuous action from the actor
         proto_action = super().act(state)
-        # if self.k_nearest_neighbors < 1:
-        #     return proto_action
-
-        # return the best neighbor of the proto action
-        return self.wolp_action(state, proto_action)
+        action = self.wolp_action(state, proto_action)
+        return action
 
     def wolp_action(self, state, proto_action):
         # get the proto_action's k nearest neighbors
-        actions = self.action_space.search_point(proto_action, self.k_nearest_neighbors)[0]
+        actions = self.knn_search.search_point(proto_action, self.k)[0]
         # make all the state, action pairs for the critic
         states = np.tile(state, [len(actions), 1])
         # evaluate each pair through the critic

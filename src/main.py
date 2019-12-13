@@ -1,16 +1,15 @@
-#!/usr/bin/python3
 import gym
-
 import numpy as np
 from wolp_agent import *
 from ddpg.agent import DDPGAgent
+import copy
 
 
 def run(episodes=10000,
         render=False,
-        experiment='InvertedPendulum-v2',
+        experiment='CartPole-v0',
         max_actions=10000,
-        knn=0.2):
+        knn=1.0):
 
     env = gym.make(experiment)
 
@@ -20,7 +19,7 @@ def run(episodes=10000,
     print('------------------------------')
 
     steps = env.spec.max_episode_steps
-    agent = WolpertingerAgent(env, max_actions=max_actions, k_ratio=knn)
+    agent = WolpertingerAgent(env, max_actions=env.action_space.n, k_ratio=knn)
     reward_sum = 0
 
     for ep in range(episodes):
@@ -30,13 +29,14 @@ def run(episodes=10000,
 
         print('Episode ', ep, '/', episodes - 1, 'started...', end='')
         for t in range(steps):
-
             if render:
                 env.render()
 
             action = agent.act(observation)
+            action_ = np.where(action)[0]
+
             prev_observation = observation
-            observation, reward, done, info = env.step(action[0] if len(action) == 1 else action)
+            observation, reward, done, info = env.step(action_[0] if len(action_) == 1 else action_)
 
             episode = {'obs': prev_observation,
                        'action': action,
@@ -46,19 +46,15 @@ def run(episodes=10000,
                        't': t}
 
             agent.observe(episode)
-
             total_reward += reward
 
             if done or (t == steps - 1):
                 t += 1
                 reward_sum += total_reward
-                print('Reward:{} Steps:{} t:{} ({}/step) Cur avg={}'.format(total_reward, t,
-                                                                            'time_passed', 'round(time_passed / t)',
-                                                                            round(reward_sum / (ep + 1))))
+                print('Reward:{} Steps:{} Cur avg={}'.format(total_reward, t, round(reward_sum / (ep + 1))))
                 break
-    # end of episodes
-    print('Run {} episodes in {} seconds and got {} average reward'.format(
-        episodes, 'time / 1000', reward_sum / episodes))
+    print('Run {} episodes and got {} average reward'.format(episodes, reward_sum / episodes))
+
 
 if __name__ == '__main__':
     run(render=True)
