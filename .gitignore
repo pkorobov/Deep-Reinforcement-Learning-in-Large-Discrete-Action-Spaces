@@ -1,29 +1,9 @@
-
-# tests
-tests
-test_*.py
 .cache
 
 # build dirs
 __pycache__
 
-# .py files
-clipboard.py
-src/util/data_update.py
 # .pyc files
 *.pyc
 
-
-# results
-results/*
-!results/obj/
-results/obj/*
-!results/obj/saved/
-results/obj/saved/*
-!results/obj/saved/data_10000_Wolp3_Inv100k10#0.json.zip
-
-!results/obj/temp/
-results/obj/temp/*
-!results/obj/temp/README.md
-
-data
+.DS_Store
