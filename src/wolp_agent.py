@@ -5,6 +5,8 @@ import copy
 from collections import deque
 import time
 
+from stable_baselines.a2c.utils import total_episode_reward_logger
+from stable_baselines import logger
 from stable_baselines.common.vec_env import VecEnv
 from mpi4py import MPI
 from stable_baselines.common import SetVerbosity, TensorboardWriter
