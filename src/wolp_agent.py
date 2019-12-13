@@ -7,9 +7,8 @@ import time
 
 from stable_baselines.common.vec_env import VecEnv
 from mpi4py import MPI
-from stable_baselines.common import tf_util, OffPolicyRLModel, SetVerbosity, TensorboardWriter
+from stable_baselines.common import SetVerbosity, TensorboardWriter
 from stable_baselines.ddpg.policies import MlpPolicy
-from stable_baselines.common.noise import NormalActionNoise, OrnsteinUhlenbeckActionNoise, AdaptiveParamNoiseSpec
 from stable_baselines import DDPG
 
 class WolpertingerAgent(DDPG):
