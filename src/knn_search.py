@@ -1,8 +1,5 @@
 import numpy as np
-import itertools
 import pyflann
-import matplotlib.pyplot as plt
-import gym
 
 """
     This class represents a n-dimensional unit cube with a specific number of points embeded.

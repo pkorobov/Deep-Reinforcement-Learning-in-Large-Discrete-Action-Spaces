@@ -1,8 +1,6 @@
 import gym
 import numpy as np
 from wolp_agent import *
-from ddpg.agent import DDPGAgent
-import copy
 
 
 def run(episodes=10000,
@@ -12,12 +10,6 @@ def run(episodes=10000,
         knn=1.0):
 
     env = gym.make(experiment)
-
-    print('------------------------------')
-    print(env.observation_space)
-    print(env.action_space)
-    print('------------------------------')
-
     steps = env.spec.max_episode_steps
     agent = WolpertingerAgent(env, max_actions=env.action_space.n, k_ratio=knn)
     reward_sum = 0
