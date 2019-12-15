@@ -19,7 +19,7 @@ from stable_baselines.a2c.utils import total_episode_reward_logger
 
 
 class WolpertingerAgent(DDPG):
-    def __init__(self, policy, env, k_ratio=1.0, embeddings=None, gamma=0.99, memory_policy=None, eval_env=None, nb_train_steps=50,
+    def __init__(self, policy, env, k_ratio=0.1, embeddings=None, gamma=0.99, memory_policy=None, eval_env=None, nb_train_steps=50,
                  nb_rollout_steps=100, nb_eval_steps=100, param_noise=None, action_noise=None,
                  normalize_observations=False, tau=0.001, batch_size=128, param_noise_adaption_interval=50,
                  normalize_returns=False, enable_popart=False, observation_range=(-5., 5.), critic_l2_reg=0.,
@@ -66,16 +66,18 @@ class WolpertingerAgent(DDPG):
             noise = self.action_noise()
             assert noise.shape == proto_action.shape
             proto_action += noise
-        proto_action = np.clip(proto_action, -1, 1)
+#        proto_action = np.clip(proto_action, -1, 1)
 
         actions = self.knn_search.search_point(proto_action, self.k)[0]  # the nearest neighbour actions
         states = np.tile(obs, [len(actions), 1])  # make all the state-action pairs for the critic
 
         feed_dict = {self.obs_train: states, self.actions: actions}
-        q_values = self.sess.run(self.critic_with_actor_tf, feed_dict=feed_dict)
+        q_values = self.sess.run(self.critic_tf, feed_dict=feed_dict)
 
+        # print(q_values)
         max_index = np.argmax(q_values)  # find the index of the pair with the maximum value
         action, q_value = actions[max_index], q_values[max_index]
+        # print(action, q_value)
         action = (action + 1) / 2
         return action, q_value
 

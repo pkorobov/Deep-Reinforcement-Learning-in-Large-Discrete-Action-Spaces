@@ -16,8 +16,9 @@ action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=floa
 def callback(_locals, _globals):
     _locals['self'].env.render()
 
-model = WolpertingerAgent(MlpPolicy, env, verbose=1, param_noise=param_noise, action_noise=action_noise)
-model.learn(total_timesteps=100000, callback=callback)
+policy_kwargs = {"layers": [400, 300]}
+model = WolpertingerAgent(MlpPolicy, env, verbose=1, param_noise=param_noise, action_noise=action_noise, policy_kwargs=policy_kwargs)
+model.learn(total_timesteps=1000000, callback=callback)
 
 for episode in range(100):
     obs = env.reset()
@@ -25,6 +26,7 @@ for episode in range(100):
         total_reward = 0
         env.render()
         action, states = model.predict(obs)
+        action = np.where(action)[0][0]
         obs, reward, done, info = env.step(action)
         total_reward += reward
         if done:
