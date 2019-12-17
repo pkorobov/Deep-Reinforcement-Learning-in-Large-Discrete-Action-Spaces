@@ -66,7 +66,7 @@ class WolpertingerAgent(DDPG):
             noise = self.action_noise()
             assert noise.shape == proto_action.shape
             proto_action += noise
-#        proto_action = np.clip(proto_action, -1, 1)
+        proto_action = np.clip(proto_action, -1, 1)
 
         actions = self.knn_search.search_point(proto_action, self.k)[0]  # the nearest neighbour actions
         states = np.tile(obs, [len(actions), 1])  # make all the state-action pairs for the critic
@@ -74,10 +74,8 @@ class WolpertingerAgent(DDPG):
         feed_dict = {self.obs_train: states, self.actions: actions}
         q_values = self.sess.run(self.critic_tf, feed_dict=feed_dict)
 
-        # print(q_values)
         max_index = np.argmax(q_values)  # find the index of the pair with the maximum value
         action, q_value = actions[max_index], q_values[max_index]
-        # print(action, q_value)
         action = (action + 1) / 2
         return action, q_value
 
@@ -313,12 +311,3 @@ class WolpertingerAgent(DDPG):
                         if self.eval_env and hasattr(self.eval_env, 'get_state'):
                             with open(os.path.join(logdir, 'eval_env_state.pkl'), 'wb') as file_handler:
                                 pickle.dump(self.eval_env.get_state(), file_handler)
-
-
-class WolpertingerPolicy(MlpPolicy):
-    def __init__(self, sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, **_kwargs):
-        super(MlpPolicy, self).__init__(sess, ob_space, ac_space, n_env, n_steps, n_batch, reuse=False, **_kwargs)
-
-    # акторa смысла трогать вроде нет, критика - есть,
-    # но сначала попробую обучать его прямиком на выходе непрерывного актора
-    # значит, надо просто засунуть кнн
