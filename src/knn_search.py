@@ -11,6 +11,7 @@ import pyflann
 class KNNSearch:
     def __init__(self, space, embeddings=None):
 
+        # space is a Box space
         n = space.shape[0]
         if embeddings is None:
             self._space = np.eye(n)  # or embedded points in future

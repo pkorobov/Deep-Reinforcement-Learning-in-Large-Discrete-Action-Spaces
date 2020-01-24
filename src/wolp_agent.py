@@ -9,6 +9,8 @@ from collections import deque
 import pickle
 
 import gym
+from gym.core import Env
+
 import numpy as np
 from mpi4py import MPI
 

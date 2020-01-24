@@ -13,12 +13,11 @@ n_actions = env.action_space.n
 param_noise = None
 action_noise = OrnsteinUhlenbeckActionNoise(mean=np.zeros(n_actions), sigma=float(0.5) * np.ones(n_actions))
 
-def callback(_locals, _globals):
-    _locals['self'].env.render()
-
-policy_kwargs = {"layers": [400, 300]}
-model = WolpertingerAgent(MlpPolicy, env, verbose=1, param_noise=param_noise, action_noise=action_noise, policy_kwargs=policy_kwargs)
-model.learn(total_timesteps=1000000, callback=callback)
+policy_kwargs = {}#{"layers": [400, 300]}
+model = WolpertingerAgent(MlpPolicy, env, verbose=1, param_noise=param_noise,
+                          action_noise=action_noise, policy_kwargs=policy_kwargs,
+                          render=True)
+model.learn(total_timesteps=1000000)
 
 for episode in range(100):
     obs = env.reset()
